@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - 'feature/**'
+  workflow_dispatch:
+    inputs:
+      enable_terminal:
+        type: boolean
+        description: 'Enable terminal session.'
+        required: false
+        default: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Check coding standards
+        run: npm run lint
+        continue-on-error: ${{ vars.CI_LINT_IGNORE_FAILURE == '1' }}
+
+      - name: Run tests
+        run: npm test
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+
+      - name: Setup tmate session
+        if: ${{ !cancelled() && github.event.inputs.enable_terminal == 'true' }}
+        uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3
+        timeout-minutes: 30

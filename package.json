@@ -1,0 +1,31 @@
+{
+  "name": "@drevops/lagoon-commands",
+  "version": "1.0.0",
+  "description": "Single-page HTML application that generates ready-to-use Lagoon CLI commands with project-specific values pre-filled.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "lint:js": "npx eslint index.html",
+    "lint:css": "npx stylelint index.html",
+    "lint": "npm run lint:js && npm run lint:css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drevops/lagoon-commands.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/drevops/lagoon-commands/issues"
+  },
+  "homepage": "https://github.com/drevops/lagoon-commands#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "eslint": "^10.1.0",
+    "eslint-plugin-html": "^8.1.4",
+    "postcss-html": "^1.8.1",
+    "stylelint": "^17.5.0",
+    "stylelint-config-standard": "^40.0.0"
+  }
+}
