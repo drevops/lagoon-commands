@@ -30,6 +30,9 @@
       padding: 0.4rem 0.75rem; margin-bottom: 0.75rem;
     }
     .settings-toggle:hover { border-color: #64748b; color: #cbd5e1; }
+    #bookmark-link { box-sizing: border-box !important; }
+    #bookmark-link-label { display: none; }
+
     .settings-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 0.75rem 1.5rem;
@@ -256,8 +259,8 @@
 <!-- Settings group -->
 <div class="cmd-group" style="margin-bottom:1rem">
   <div class="cmd-group-label" style="display:flex;align-items:center;justify-content:space-between">
-    <span style="display:inline-flex;align-items:center;gap:0.5rem">Project Information <button class="settings-toggle" id="share-link-btn" style="margin-bottom:0;padding:0.2rem 0.4rem;line-height:1;text-transform:none;letter-spacing:0" title="Copy a shareable URL with current settings"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button></span>
-    <button class="settings-toggle" id="global-settings-btn" style="margin-bottom:0;padding:0.25rem 0.4rem;line-height:1" title="Global Settings"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <span style="display:inline-flex;align-items:center;gap:0.5rem">Project Information <button class="settings-toggle" id="global-settings-btn" style="margin-bottom:0;padding:0.25rem 0.4rem;line-height:1" title="Global Settings"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></span>
+    <span style="display:inline-flex;align-items:center;gap:0.5rem"><span style="color:#64748b;font-size:0.65rem">Drag to bookmarks bar</span> <a class="settings-toggle" id="bookmark-link" href="#" style="margin-bottom:0;padding:0.2rem 0.4rem;line-height:1;text-transform:none;letter-spacing:0;text-decoration:none;gap:0" title="Drag to bookmarks bar to save this project" draggable="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span id="bookmark-link-label">Lagoon Commands</span></a> <button class="settings-toggle" id="share-link-btn" style="margin-bottom:0;padding:0.2rem 0.4rem;line-height:1;text-transform:none;letter-spacing:0" title="Copy a shareable URL with current settings"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button></span>
   </div>
   <div style="padding:0.5rem 0.75rem">
   <div class="settings-grid">
@@ -1324,6 +1327,7 @@ function updateAllCodeBlocks() {
     const card = document.querySelector('.cmd-card[data-id="' + cmd.id + '"]');
     if (card) updateCodeBlock(card, cmd);
   });
+  updateBookmarkLink();
 }
 
 function filterCards() {
@@ -1549,6 +1553,29 @@ function generateShareLink() {
   return qs ? base + '?' + qs : base;
 }
 
+// ─── Bookmark link ──────────────────────────────────────────────────────────
+function updateBookmarkLink() {
+  var el = document.getElementById('bookmark-link');
+  var link = generateShareLink();
+  var label = state.project ? 'Lagoon: ' + state.project : 'Lagoon Commands';
+  el.href = link;
+  el.title = state.project ? 'Drag to bookmarks bar: ' + state.project : 'Drag to bookmarks bar to save this project';
+  var labelEl = document.getElementById('bookmark-link-label');
+  if (labelEl) labelEl.textContent = label;
+}
+
+document.getElementById('bookmark-link').addEventListener('click', function(e) {
+  e.preventDefault();
+  var link = generateShareLink();
+  navigator.clipboard.writeText(link).then(function() {
+    var el = document.getElementById('bookmark-link');
+    var orig = el.innerHTML;
+    el.innerHTML = '<span style="font-size:10px">\u2713</span>';
+    el.style.borderColor = '#166534';
+    setTimeout(function() { el.innerHTML = orig; el.style.borderColor = ''; }, 1800);
+  });
+});
+
 // ─── Init ──────────────────────────────────────────────────────────────────
 loadFromLS();
 loadFromURL();
@@ -1698,6 +1725,7 @@ document.getElementById('config-import-btn').addEventListener('click', function(
 });
 
 renderAll();
+updateBookmarkLink();
 </script>
 <footer style="text-align:center;padding:2rem 0 1rem;font-size:0.75rem;color:#475569">Built by <a href="https://github.com/drevops" style="color:#64748b;text-decoration:none">DrevOps</a></footer>
 </body>
