@@ -738,3 +738,33 @@ test.describe('clear all data', () => {
     await expect(page.locator('#s-project')).toHaveValue('');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Global settings SSH preview refresh.
+// ---------------------------------------------------------------------------
+
+test.describe('global settings refresh', () => {
+  test('saving global SSH pattern updates resolved SSH preview', async ({ page }) => {
+    await page.locator('#s-custom-ssh').check();
+    await page.locator('#s-project').fill('my-proj');
+    await expect(page.locator('#s-ssh-preview')).toContainText('my-proj');
+    await page.locator('#global-settings-btn').click();
+    await page.locator('#g-ssh-pattern').fill('/custom/path/{PROJECT}_key');
+    await page.locator('#global-save-btn').click();
+    await expect(page.locator('#s-ssh-preview')).toContainText('/custom/path/my-proj_key');
+  });
+
+  test('saving global prod branch updates placeholder', async ({ page }) => {
+    await page.locator('#global-settings-btn').click();
+    await page.locator('#g-prod-branch').fill('production');
+    await page.locator('#global-save-btn').click();
+    await expect(page.locator('#s-prod-branch')).toHaveAttribute('placeholder', 'production');
+  });
+
+  test('SSH preview copy icon visible when project is set', async ({ page }) => {
+    await page.locator('#s-custom-ssh').check();
+    await expect(page.locator('#ssh-preview-copy-icon')).not.toBeVisible();
+    await page.locator('#s-project').fill('test-proj');
+    await expect(page.locator('#ssh-preview-copy-icon')).toBeVisible();
+  });
+});
