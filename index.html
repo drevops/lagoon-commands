@@ -273,7 +273,7 @@
       <label for="s-github-repo">GitHub Repo</label>
       <input type="text" id="s-github-repo" placeholder="org/PROJECT" autocomplete="off">
     </div>
-    <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem 1.5rem;">
+    <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.75rem 1.5rem;">
       <div>
         <label for="s-prod-branch">Production Branch <span style="color:#ef4444">*</span></label>
         <input type="text" id="s-prod-branch" placeholder="main" autocomplete="off">
@@ -285,6 +285,10 @@
       <div>
         <label for="s-pr-prefix">PR Env Prefix <span style="color:#ef4444">*</span></label>
         <input type="text" id="s-pr-prefix" placeholder="pr-" autocomplete="off">
+      </div>
+      <div>
+        <label for="s-ssh-port">SSH Port <span style="color:#ef4444">*</span></label>
+        <input type="text" id="s-ssh-port" placeholder="32222" autocomplete="off">
       </div>
     </div>
     <div style="grid-column: 1 / -1">
@@ -348,7 +352,7 @@
       <div class="modal-title" style="margin-bottom:0">Global Settings</div>
       <button id="global-close-btn" style="background:none;border:none;color:#64748b;cursor:pointer;padding:0.2rem;line-height:1" title="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem 1.5rem;margin-bottom:0.75rem">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.75rem 1.5rem;margin-bottom:0.75rem">
       <div>
         <label for="g-prod-branch">Default Production Branch</label>
         <input type="text" id="g-prod-branch" placeholder="main" autocomplete="off">
@@ -360,6 +364,10 @@
       <div>
         <label for="g-pr-prefix">Default PR Env Prefix</label>
         <input type="text" id="g-pr-prefix" placeholder="pr-" autocomplete="off">
+      </div>
+      <div>
+        <label for="g-ssh-port">Default SSH Port</label>
+        <input type="text" id="g-ssh-port" placeholder="32222" autocomplete="off">
       </div>
     </div>
     <label for="g-ssh-pattern">Default SSH Key Pattern <span style="color:#64748b;font-weight:normal">(use <code style="font-size:0.75rem;background:#1e293b;padding:0.05rem 0.3rem;border-radius:3px">{PROJECT}</code> as placeholder)</span></label>
@@ -399,7 +407,7 @@
 
 <script>
 // ─── Command definitions ───────────────────────────────────────────────────
-// Template vars: {{PROJECT}}, {{SSH_KEY}}, {{PROD_BRANCH}}, {{DEV_BRANCH}}, {{GITHUB_REPO}}
+// Template vars: {{PROJECT}}, {{SSH_KEY}}, {{SSH_PORT}}, {{PROD_BRANCH}}, {{DEV_BRANCH}}, {{GITHUB_REPO}}
 // Inline param keys: BRANCH, PR_NUM, PR_SHA, EMAIL, ENV_NAME
 const COMMANDS = [
   // ── auth ──
@@ -532,8 +540,8 @@ const COMMANDS = [
     desc: 'Open an SSH session to an environment.',
     tplBranch: 'lagoon ssh -p {{PROJECT}} -e {{DEPLOY_BRANCH}}',
     tplPr: 'lagoon ssh -p {{PROJECT}} -e {{PR_PREFIX}}{{PR_NUM}}',
-    tplBranchAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p "22" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud',
-    tplPrAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p "22" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud',
+    tplBranchAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p {{SSH_PORT}} {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud',
+    tplPrAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p {{SSH_PORT}} {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud',
     tpl: 'lagoon ssh -p {{PROJECT}} -e {{DEPLOY_BRANCH}}',
     params: [], envSelectPr: true, altCode: true
   },
@@ -542,33 +550,33 @@ const COMMANDS = [
   {
     id: 39, title: 'Copy DB from environment', tags: ['data'], group: 'data',
     desc: 'Download db.sql from the environment /tmp via rsync over SSH.',
-    tplBranch: "rsync -e \"ssh -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
-    tplPr: "rsync -e \"ssh -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
-    tpl: "rsync -e \"ssh -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
+    tplBranch: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
+    tplPr: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
+    tpl: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
     params: [], envSelectPr: true
   },
   {
     id: 31, title: 'Copy DB to environment', tags: ['data'], group: 'data',
     desc: 'Upload local db.sql to the environment /tmp via rsync over SSH.',
-    tplBranch: "rsync -e \"ssh -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" ./.data/db.sql {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/",
-    tplPr: "rsync -e \"ssh -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" ./.data/db.sql {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/tmp/",
-    tpl: "rsync -e \"ssh -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" ./.data/db.sql {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/",
+    tplBranch: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/",
+    tplPr: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/tmp/",
+    tpl: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/",
     params: [], envSelectPr: true
   },
   {
     id: 32, title: 'Sync files to environment', tags: ['data'], group: 'data',
     desc: 'Upload local files directory to an environment via rsync.',
-    tplBranch: "rsync -avz -e \"ssh -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" ./web/sites/default/files/ {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
-    tplPr: "rsync -avz -e \"ssh -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" ./web/sites/default/files/ {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
-    tpl: "rsync -avz -e \"ssh -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" ./web/sites/default/files/ {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
+    tplBranch: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
+    tplPr: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
+    tpl: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
     params: [], envSelectPr: true
   },
   {
     id: 33, title: 'Sync files from environment', tags: ['data'], group: 'data',
     desc: 'Download files directory from an environment via rsync.',
-    tplBranch: "rsync -avz -e \"ssh -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
-    tplPr: "rsync -avz -e \"ssh -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
-    tpl: "rsync -avz -e \"ssh -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p 22\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
+    tplBranch: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
+    tplPr: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
+    tpl: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
     params: [], envSelectPr: true
   },
 
@@ -621,6 +629,7 @@ const state = {
   devBranch: '',
   githubRepo: '',
   prPrefix: '',
+  sshPort: '',
   useCustomSsh: false,
   searchQuery: '',
   activeTag: null,
@@ -637,7 +646,7 @@ const state = {
 };
 
 // ─── Persistence ───────────────────────────────────────────────────────────
-var LS_KEYS = ['project', 'sshKeyPattern', 'prodBranch', 'devBranch', 'githubRepo', 'prPrefix', 'useCustomSsh', 'inlineParams', 'setup', 'projects', 'global'];
+var LS_KEYS = ['project', 'sshKeyPattern', 'prodBranch', 'devBranch', 'githubRepo', 'prPrefix', 'sshPort', 'useCustomSsh', 'inlineParams', 'setup', 'projects', 'global'];
 
 function lsSet(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (_e) {}
@@ -658,6 +667,7 @@ function saveToLS() {
   lsSet('devBranch', state.devBranch);
   lsSet('githubRepo', state.githubRepo);
   lsSet('prPrefix', state.prPrefix);
+  lsSet('sshPort', state.sshPort);
   lsSet('useCustomSsh', state.useCustomSsh);
   lsSet('inlineParams', state.inlineParams);
   lsSet('setup', state.setup);
@@ -670,6 +680,7 @@ function loadFromLS() {
   state.devBranch = lsGet('devBranch', '');
   state.githubRepo = lsGet('githubRepo', '');
   state.prPrefix = lsGet('prPrefix', '');
+  state.sshPort = lsGet('sshPort', '');
   state.useCustomSsh = lsGet('useCustomSsh', false);
   state.inlineParams = lsGet('inlineParams', {});
   var savedSetup = lsGet('setup', null);
@@ -700,6 +711,7 @@ function saveProject() {
     devBranch: state.devBranch,
     githubRepo: state.githubRepo,
     prPrefix: state.prPrefix,
+    sshPort: state.sshPort,
     useCustomSsh: state.useCustomSsh
   };
   try { localStorage.setItem(LS_PROJECTS_KEY, JSON.stringify(projects)); } catch (_e) {}
@@ -721,6 +733,7 @@ function loadProjectSettings(name) {
   if (p.devBranch !== undefined) state.devBranch = p.devBranch;
   if (p.githubRepo !== undefined) state.githubRepo = p.githubRepo;
   if (p.prPrefix !== undefined) state.prPrefix = p.prPrefix;
+  if (p.sshPort !== undefined) state.sshPort = p.sshPort;
   if (p.useCustomSsh !== undefined) state.useCustomSsh = p.useCustomSsh;
   populateSettingsFromState();
   updateSshPreview();
@@ -766,8 +779,8 @@ function showProjectDropdown(filter) {
 }
 
 // ─── Variable resolution ───────────────────────────────────────────────────
-var GLOBAL_DEFAULTS_MAP = { prodBranch: 'prodBranch', devBranch: 'devBranch', prPrefix: 'prPrefix' };
-var BUILTIN_DEFAULTS = { prodBranch: 'main', devBranch: 'develop', prPrefix: 'pr-' };
+var GLOBAL_DEFAULTS_MAP = { prodBranch: 'prodBranch', devBranch: 'devBranch', prPrefix: 'prPrefix', sshPort: 'sshPort' };
+var BUILTIN_DEFAULTS = { prodBranch: 'main', devBranch: 'develop', prPrefix: 'pr-', sshPort: '32222' };
 
 function getEffective(key, fallback) {
   const v = state[key];
@@ -854,6 +867,8 @@ function resolveCommand(cmd, useAlt) {
     out = out.replace(/VORTEX_DEPLOY_SSH_FILE={{SSH_KEY}} /g, '');
     out = out.split('{{SSH_KEY}}').join('');
   }
+  var sshPort = getEffective('sshPort', '32222');
+  out = out.split('{{SSH_PORT}}').join(sshPort);
   out = out.split('{{PROD_BRANCH}}').join(prodBranch);
   out = out.split('{{DEV_BRANCH}}').join(devBranch);
   out = out.split('{{GITHUB_REPO}}').join(githubRepo);
@@ -1402,7 +1417,8 @@ function bindSettingsInputs() {
     { id: 's-prod-branch', stateKey: 'prodBranch' },
     { id: 's-dev-branch', stateKey: 'devBranch' },
     { id: 's-github-repo', stateKey: 'githubRepo' },
-    { id: 's-pr-prefix', stateKey: 'prPrefix' }
+    { id: 's-pr-prefix', stateKey: 'prPrefix' },
+    { id: 's-ssh-port', stateKey: 'sshPort' }
   ];
   fields.forEach(function(f) {
     const el = document.getElementById(f.id);
@@ -1443,6 +1459,7 @@ function populateSettingsFromState() {
   document.getElementById('s-dev-branch').value = state.devBranch;
   document.getElementById('s-github-repo').value = state.githubRepo;
   document.getElementById('s-pr-prefix').value = state.prPrefix;
+  document.getElementById('s-ssh-port').value = state.sshPort;
   document.getElementById('s-custom-ssh').checked = state.useCustomSsh;
   document.getElementById('ssh-custom-block').style.display = state.useCustomSsh ? 'block' : 'none';
 }
@@ -1465,6 +1482,7 @@ document.getElementById('reset-defaults-btn').addEventListener('click', function
   state.devBranch = '';
   state.githubRepo = '';
   state.prPrefix = '';
+  state.sshPort = '';
   state.useCustomSsh = false;
   state.searchQuery = '';
   state.activeTag = null;
@@ -1525,10 +1543,10 @@ document.querySelectorAll('.tag-filter-btn').forEach(function(btn) {
 });
 
 // ─── Query parameter support ────────────────────────────────────────────
-// Supported: ?project=name&ssh_key=path&prod_branch=main&dev_branch=develop&github_repo=org/name&tag=ssh&search=deploy
+// Supported: ?project=name&ssh_key=path&prod_branch=main&dev_branch=develop&github_repo=org/name&pr_prefix=pr-&ssh_port=32222&tag=ssh&search=deploy
 function loadFromURL() {
   var params = new URLSearchParams(window.location.search);
-  var mapping = { project: 'project', ssh_pattern: 'sshKeyPattern', prod_branch: 'prodBranch', dev_branch: 'devBranch', github_repo: 'githubRepo', pr_prefix: 'prPrefix' };
+  var mapping = { project: 'project', ssh_pattern: 'sshKeyPattern', prod_branch: 'prodBranch', dev_branch: 'devBranch', github_repo: 'githubRepo', pr_prefix: 'prPrefix', ssh_port: 'sshPort' };
   var hasUrlParams = false;
   Object.keys(mapping).forEach(function(urlKey) {
     var val = params.get(urlKey);
@@ -1551,6 +1569,7 @@ function generateShareLink() {
   if (state.devBranch && state.devBranch !== 'develop') params.set('dev_branch', state.devBranch);
   if (state.githubRepo) params.set('github_repo', state.githubRepo);
   if (state.prPrefix && state.prPrefix !== 'pr-') params.set('pr_prefix', state.prPrefix);
+  if (state.sshPort && state.sshPort !== '32222') params.set('ssh_port', state.sshPort);
   if (state.activeTag) params.set('tag', state.activeTag);
   var qs = params.toString();
   return qs ? base + '?' + qs : base;
@@ -1632,15 +1651,18 @@ function applyGlobalDefaults() {
   var prodEl = document.getElementById('s-prod-branch');
   var devEl = document.getElementById('s-dev-branch');
   var prEl = document.getElementById('s-pr-prefix');
+  var portEl = document.getElementById('s-ssh-port');
   var sshEl = document.getElementById('s-ssh-pattern');
   prodEl.placeholder = global.prodBranch || 'main';
   devEl.placeholder = global.devBranch || 'develop';
   prEl.placeholder = global.prPrefix || 'pr-';
+  portEl.placeholder = global.sshPort || '32222';
   sshEl.placeholder = global.sshPattern || DEFAULT_SSH_PATTERN;
   // Pre-fill empty fields with global defaults.
   if (!state.prodBranch) { state.prodBranch = global.prodBranch || 'main'; prodEl.value = state.prodBranch; }
   if (!state.devBranch) { state.devBranch = global.devBranch || 'develop'; devEl.value = state.devBranch; }
   if (!state.prPrefix) { state.prPrefix = global.prPrefix || 'pr-'; prEl.value = state.prPrefix; }
+  if (!state.sshPort) { state.sshPort = global.sshPort || '32222'; portEl.value = state.sshPort; }
   updateAllCodeBlocks();
 }
 applyGlobalDefaults();
@@ -1651,6 +1673,7 @@ document.getElementById('global-settings-btn').addEventListener('click', functio
   document.getElementById('g-prod-branch').value = global.prodBranch || 'main';
   document.getElementById('g-dev-branch').value = global.devBranch || 'develop';
   document.getElementById('g-pr-prefix').value = global.prPrefix || 'pr-';
+  document.getElementById('g-ssh-port').value = global.sshPort || '32222';
   document.getElementById('g-ssh-pattern').value = global.sshPattern || DEFAULT_SSH_PATTERN;
   globalModal.classList.add('open');
 });
@@ -1670,8 +1693,9 @@ document.getElementById('global-save-btn').addEventListener('click', function() 
   var prodBranch = document.getElementById('g-prod-branch').value.trim();
   var devBranch = document.getElementById('g-dev-branch').value.trim();
   var prPrefix = document.getElementById('g-pr-prefix').value.trim();
+  var sshPort = document.getElementById('g-ssh-port').value.trim();
   var pattern = document.getElementById('g-ssh-pattern').value.trim();
-  saveGlobalSettings({ prodBranch: prodBranch, devBranch: devBranch, prPrefix: prPrefix, sshPattern: pattern });
+  saveGlobalSettings({ prodBranch: prodBranch, devBranch: devBranch, prPrefix: prPrefix, sshPort: sshPort, sshPattern: pattern });
   applyGlobalDefaults();
   populateSettingsFromState();
   updateSshPreview();
