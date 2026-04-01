@@ -1409,7 +1409,7 @@ function updateSshPreview() {
   if (copyIcon) copyIcon.style.display = 'inline';
   var keyPath = resolvedKey.replace(/^\$HOME/, '~');
   var keyBasename = keyPath.split('/').pop();
-  keygenEl.textContent = 'ssh-keygen -m PEM -t rsa -b 4096 -C "' + keyBasename + '" -f ' + keyPath + ' -N ""';
+  keygenEl.textContent = 'ssh-keygen -m PEM -t rsa -b 4096 -C "' + keyBasename + '" -f "' + keyPath + '" -N ""';
 }
 
 function bindSettingsInputs() {
