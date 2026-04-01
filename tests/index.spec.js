@@ -562,6 +562,30 @@ test.describe('custom SSH key', () => {
     const loginCode = page.locator('.cmd-card', { hasText: 'Login to Lagoon' }).locator('.cmd-code');
     await expect(loginCode).toContainText('-i');
   });
+
+  test('SSH key pattern input shows default value instead of being empty', async ({ page }) => {
+    await page.locator('#s-custom-ssh').check();
+    const patternInput = page.locator('#s-ssh-pattern');
+    await expect(patternInput).toHaveValue(/deploy_plus_\{PROJECT\}_lagoon_at_acme_com/);
+  });
+
+  test('ssh-keygen command reflects the SSH key pattern', async ({ page }) => {
+    await page.locator('#s-custom-ssh').check();
+    await page.locator('#s-project').fill('my-proj');
+    await page.locator('#ssh-custom-block .collapsible-toggle').click();
+    const keygen = page.locator('#ssh-keygen-code');
+    await expect(keygen).toContainText('deploy_plus_my-proj_lagoon_at_acme_com');
+  });
+
+  test('ssh-keygen command updates when SSH key pattern changes', async ({ page }) => {
+    await page.locator('#s-custom-ssh').check();
+    await page.locator('#s-project').fill('my-proj');
+    await page.locator('#s-ssh-pattern').fill('/custom/{PROJECT}_key');
+    await page.locator('#ssh-custom-block .collapsible-toggle').click();
+    const keygen = page.locator('#ssh-keygen-code');
+    await expect(keygen).toContainText('-f "/custom/my-proj_key"');
+    await expect(keygen).toContainText('-C "my-proj_key"');
+  });
 });
 
 // ---------------------------------------------------------------------------
