@@ -1456,7 +1456,8 @@ function bindSettingsInputs() {
 
 function populateSettingsFromState() {
   document.getElementById('s-project').value = state.project;
-  document.getElementById('s-ssh-pattern').value = state.sshKeyPattern;
+  var sshPatternEl = document.getElementById('s-ssh-pattern');
+  sshPatternEl.value = state.sshKeyPattern || loadGlobalSettings().sshPattern || DEFAULT_SSH_PATTERN;
   document.getElementById('s-prod-branch').value = state.prodBranch;
   document.getElementById('s-dev-branch').value = state.devBranch;
   document.getElementById('s-github-repo').value = state.githubRepo;
@@ -1665,7 +1666,7 @@ function applyGlobalDefaults() {
   if (!state.devBranch) { state.devBranch = global.devBranch || 'develop'; devEl.value = state.devBranch; }
   if (!state.prPrefix) { state.prPrefix = global.prPrefix || 'pr-'; prEl.value = state.prPrefix; }
   if (!state.sshPort) { state.sshPort = global.sshPort || '32222'; portEl.value = state.sshPort; }
-  if (!state.sshKeyPattern) { state.sshKeyPattern = global.sshPattern || DEFAULT_SSH_PATTERN; sshEl.value = state.sshKeyPattern; }
+  if (!state.sshKeyPattern) sshEl.value = global.sshPattern || DEFAULT_SSH_PATTERN;
   updateAllCodeBlocks();
 }
 applyGlobalDefaults();
