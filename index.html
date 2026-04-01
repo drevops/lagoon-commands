@@ -1404,10 +1404,12 @@ function updateSshPreview() {
     if (copyIcon) copyIcon.style.display = 'none';
     return;
   }
-  previewEl.textContent = resolveSshKey(project);
+  var resolvedKey = resolveSshKey(project);
+  previewEl.textContent = resolvedKey;
   if (copyIcon) copyIcon.style.display = 'inline';
-  var projectUnderscore = project.replace(/-/g, '_');
-  keygenEl.textContent = 'ssh-keygen -m PEM -t rsa -b 4096 -C "deploy+' + project + '-lagoon@acme.com" -f ~/.ssh/deploy_plus_' + projectUnderscore + '_lagoon_at_acme_com -N ""';
+  var keyPath = resolvedKey.replace(/^\$HOME/, '~');
+  var keyBasename = keyPath.split('/').pop();
+  keygenEl.textContent = 'ssh-keygen -m PEM -t rsa -b 4096 -C "' + keyBasename + '" -f ' + keyPath + ' -N ""';
 }
 
 function bindSettingsInputs() {
@@ -1663,6 +1665,7 @@ function applyGlobalDefaults() {
   if (!state.devBranch) { state.devBranch = global.devBranch || 'develop'; devEl.value = state.devBranch; }
   if (!state.prPrefix) { state.prPrefix = global.prPrefix || 'pr-'; prEl.value = state.prPrefix; }
   if (!state.sshPort) { state.sshPort = global.sshPort || '32222'; portEl.value = state.sshPort; }
+  if (!state.sshKeyPattern) { state.sshKeyPattern = global.sshPattern || DEFAULT_SSH_PATTERN; sshEl.value = state.sshKeyPattern; }
   updateAllCodeBlocks();
 }
 applyGlobalDefaults();
