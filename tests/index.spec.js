@@ -38,6 +38,12 @@ test.describe('page load', () => {
     const countText = await page.locator('#count-bar').textContent();
     expect(countText).toMatch(/Showing all \d+ commands/);
   });
+
+  test('displays version in footer', async ({ page }) => {
+    const version = page.locator('#app-version');
+    await expect(version).toBeVisible();
+    await expect(version).toHaveText('development');
+  });
 });
 
 // ---------------------------------------------------------------------------
