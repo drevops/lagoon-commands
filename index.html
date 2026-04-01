@@ -266,29 +266,29 @@
   <div class="settings-grid">
     <div class="project-wrap">
       <label for="s-project">Project Name <span style="color:#ef4444">*</span></label>
-      <input type="text" id="s-project" placeholder="my-project" autocomplete="off">
+      <input type="text" id="s-project" placeholder="my-project" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       <div class="project-dropdown" id="project-dropdown"></div>
     </div>
     <div>
       <label for="s-github-repo">GitHub Repo</label>
-      <input type="text" id="s-github-repo" placeholder="org/PROJECT" autocomplete="off">
+      <input type="text" id="s-github-repo" placeholder="org/PROJECT" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
     </div>
     <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.75rem 1.5rem;">
       <div>
         <label for="s-prod-branch">Production Branch <span style="color:#ef4444">*</span></label>
-        <input type="text" id="s-prod-branch" placeholder="main" autocomplete="off">
+        <input type="text" id="s-prod-branch" placeholder="main" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
       <div>
         <label for="s-dev-branch">Dev Branch <span style="color:#ef4444">*</span></label>
-        <input type="text" id="s-dev-branch" placeholder="develop" autocomplete="off">
+        <input type="text" id="s-dev-branch" placeholder="develop" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
       <div>
         <label for="s-pr-prefix">PR Env Prefix <span style="color:#ef4444">*</span></label>
-        <input type="text" id="s-pr-prefix" placeholder="pr-" autocomplete="off">
+        <input type="text" id="s-pr-prefix" placeholder="pr-" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
       <div>
         <label for="s-ssh-port">SSH Port <span style="color:#ef4444">*</span></label>
-        <input type="text" id="s-ssh-port" placeholder="32222" autocomplete="off">
+        <input type="text" id="s-ssh-port" placeholder="32222" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
     </div>
     <div style="grid-column: 1 / -1">
@@ -298,7 +298,7 @@
       </div>
       <div id="ssh-custom-block" style="display:none">
         <label for="s-ssh-pattern">SSH Key Pattern <span style="color:#64748b;font-weight:normal">(use <code style="font-size:0.75rem;background:#1e293b;padding:0.05rem 0.3rem;border-radius:3px">{PROJECT}</code> as placeholder)</span></label>
-        <input type="text" id="s-ssh-pattern" placeholder="$HOME/.ssh/deploy_plus_{PROJECT}_lagoon_at_acme_com" autocomplete="off">
+        <input type="text" id="s-ssh-pattern" placeholder="$HOME/.ssh/deploy_plus_{PROJECT}_lagoon_at_acme_com" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
         <div style="font-size:0.75rem;color:#64748b;margin-top:0.2rem">Resolved: <span id="s-ssh-preview" style="color:#7dd3fc;font-family:monospace;cursor:pointer" title="Click to copy"></span><svg id="ssh-preview-copy-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:0.3rem;vertical-align:middle;cursor:pointer;display:none" title="Click to copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
         <button class="collapsible-toggle" style="margin-top:0.3rem" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
           <span class="chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
@@ -324,7 +324,7 @@
 <!-- Search bar -->
 <div class="search-wrap">
   <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-  <input type="text" id="search" placeholder="Search commands by name, description, or tag…" autocomplete="off">
+  <input type="text" id="search" placeholder="Search commands by name, description, or tag…" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
   <button id="search-clear" title="Clear search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
 </div>
 
@@ -355,23 +355,23 @@
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.75rem 1.5rem;margin-bottom:0.75rem">
       <div>
         <label for="g-prod-branch">Default Production Branch</label>
-        <input type="text" id="g-prod-branch" placeholder="main" autocomplete="off">
+        <input type="text" id="g-prod-branch" placeholder="main" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
       <div>
         <label for="g-dev-branch">Default Dev Branch</label>
-        <input type="text" id="g-dev-branch" placeholder="develop" autocomplete="off">
+        <input type="text" id="g-dev-branch" placeholder="develop" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
       <div>
         <label for="g-pr-prefix">Default PR Env Prefix</label>
-        <input type="text" id="g-pr-prefix" placeholder="pr-" autocomplete="off">
+        <input type="text" id="g-pr-prefix" placeholder="pr-" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
       <div>
         <label for="g-ssh-port">Default SSH Port</label>
-        <input type="text" id="g-ssh-port" placeholder="32222" autocomplete="off">
+        <input type="text" id="g-ssh-port" placeholder="32222" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       </div>
     </div>
     <label for="g-ssh-pattern">Default SSH Key Pattern <span style="color:#64748b;font-weight:normal">(use <code style="font-size:0.75rem;background:#1e293b;padding:0.05rem 0.3rem;border-radius:3px">{PROJECT}</code> as placeholder)</span></label>
-    <input type="text" id="g-ssh-pattern" placeholder="$HOME/.ssh/deploy_plus_{PROJECT}_lagoon_at_acme_com" autocomplete="off">
+    <input type="text" id="g-ssh-pattern" placeholder="$HOME/.ssh/deploy_plus_{PROJECT}_lagoon_at_acme_com" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
     <button class="collapsible-toggle" style="margin-top:1rem" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
       <span class="chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
       Import / Export Configuration
