@@ -401,6 +401,29 @@ test.describe('SSH environment selector', () => {
     expect(directCode).toContain('proj-feature-abc-123-x@ssh.lagoon.amazeeio.cloud');
   });
 
+  test('truncates an over-long environment in the SSH username but not in the -e flag', async ({ page }) => {
+
+    await page.locator('#s-project').fill('acme');
+    await page.locator('.tag-filter-btn[data-tag="ssh"]').click();
+    const sshCard = page.locator('.cmd-group[data-group="ssh"] .cmd-card').first();
+    await sshCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await sshCard.locator('.env-custom-input:not([disabled])').fill('feature/very-long-branch-name-that-exceeds-the-ssh-username-limit');
+    const lagoonCode = await sshCard.locator('.cmd-code').first().textContent();
+    expect(lagoonCode).toContain('lagoon ssh -p acme -e feature-very-long-branch-name-that-exceeds-the-ssh-username-limit');
+    const directCode = await sshCard.locator('.cmd-code-alt').textContent();
+    expect(directCode).toContain('acme-feature-very-long-branch-name-that-exceeds-the-ss-ac2b@ssh.lagoon.amazeeio.cloud');
+  });
+
+  test('keeps an environment inside the 58 character budget untruncated', async ({ page }) => {
+
+    await page.locator('#s-project').fill('acme');
+    await page.locator('.tag-filter-btn[data-tag="ssh"]').click();
+    const sshCard = page.locator('.cmd-group[data-group="ssh"] .cmd-card').first();
+    await sshCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await sshCard.locator('.env-custom-input:not([disabled])').fill('feature/exactly-fifty-four-characters-long-branch-name');
+    const directCode = await sshCard.locator('.cmd-code-alt').textContent();
+    expect(directCode).toContain('acme-feature-exactly-fifty-four-characters-long-branch-name@ssh.lagoon.amazeeio.cloud');
+  });
   test('sanitises the branch in rsync SSH usernames', async ({ page }) => {
 
     await page.locator('#s-project').fill('proj');
