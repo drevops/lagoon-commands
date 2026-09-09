@@ -407,7 +407,11 @@
 
 <script>
 // ─── Command definitions ───────────────────────────────────────────────────
-// Template vars: {{PROJECT}}, {{SSH_KEY}}, {{SSH_PORT}}, {{PROD_BRANCH}}, {{DEV_BRANCH}}, {{GITHUB_REPO}}
+// Template vars: {{PROJECT}}, {{SSH_KEY}}, {{SSH_PORT}}, {{PROD_BRANCH}}, {{DEV_BRANCH}}, {{GITHUB_REPO}}, {{DEPLOY_BRANCH}}, {{DEPLOY_ENV}}, {{SSH_ENV}}
+// Three forms of the same branch: {{DEPLOY_BRANCH}} is the raw git branch and
+// belongs in 'lagoon deploy branch -b'; {{DEPLOY_ENV}} is the Lagoon
+// environment name and belongs in '-e' flags; {{SSH_ENV}} is that name
+// truncated to fit an SSH username.
 // Inline param keys: BRANCH, PR_NUM, PR_SHA, EMAIL, ENV_NAME
 const COMMANDS = [
   // ── auth ──
@@ -464,9 +468,9 @@ const COMMANDS = [
   {
     id: 36, title: 'Set auto-idle', tags: ['setup'], group: 'setup',
     desc: 'Enable or disable auto-idling for an environment.',
-    tplBranch: 'lagoon update environment -p {{PROJECT}} -e {{DEPLOY_BRANCH}} --autoIdle {{AUTO_IDLE}}',
+    tplBranch: 'lagoon update environment -p {{PROJECT}} -e {{DEPLOY_ENV}} --autoIdle {{AUTO_IDLE}}',
     tplPr: 'lagoon update environment -p {{PROJECT}} -e {{PR_PREFIX}}{{PR_NUM}} --autoIdle {{AUTO_IDLE}}',
-    tpl: 'lagoon update environment -p {{PROJECT}} -e {{DEPLOY_BRANCH}} --autoIdle {{AUTO_IDLE}}',
+    tpl: 'lagoon update environment -p {{PROJECT}} -e {{DEPLOY_ENV}} --autoIdle {{AUTO_IDLE}}',
     params: [], dynamic: true, control: 'auto-idle', envSelectPr: true, envSelectNoProd: true
   },
 
@@ -530,7 +534,7 @@ const COMMANDS = [
   {
     id: 19, title: 'Redeploy latest', tags: ['deploy'], group: 'deploy',
     desc: 'Re-run the latest existing deployment without a new push.',
-    tpl: 'lagoon deploy latest -p {{PROJECT}} -e "{{DEPLOY_BRANCH}}"',
+    tpl: 'lagoon deploy latest -p {{PROJECT}} -e "{{DEPLOY_ENV}}"',
     params: [], envSelect: true, dbOverride: true
   },
 
@@ -538,11 +542,11 @@ const COMMANDS = [
   {
     id: 28, title: 'SSH to environment', tags: ['ssh'], group: 'ssh',
     desc: 'Open an SSH session to an environment.',
-    tplBranch: 'lagoon ssh -p {{PROJECT}} -e {{DEPLOY_BRANCH}}',
+    tplBranch: 'lagoon ssh -p {{PROJECT}} -e {{DEPLOY_ENV}}',
     tplPr: 'lagoon ssh -p {{PROJECT}} -e {{PR_PREFIX}}{{PR_NUM}}',
-    tplBranchAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p {{SSH_PORT}} {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud',
+    tplBranchAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p {{SSH_PORT}} {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud',
     tplPrAlt: 'ssh -i {{SSH_KEY}} -o "IdentitiesOnly=yes" -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -p {{SSH_PORT}} {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud',
-    tpl: 'lagoon ssh -p {{PROJECT}} -e {{DEPLOY_BRANCH}}',
+    tpl: 'lagoon ssh -p {{PROJECT}} -e {{DEPLOY_ENV}}',
     params: [], envSelectPr: true, altCode: true
   },
 
@@ -550,33 +554,33 @@ const COMMANDS = [
   {
     id: 39, title: 'Copy DB from environment', tags: ['data'], group: 'data',
     desc: 'Download db.sql from the environment /tmp via rsync over SSH.',
-    tplBranch: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
+    tplBranch: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
     tplPr: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
-    tpl: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
+    tpl: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/tmp/db.sql ./.data/db.sql",
     params: [], envSelectPr: true
   },
   {
     id: 31, title: 'Copy DB to environment', tags: ['data'], group: 'data',
     desc: 'Upload local db.sql to the environment /tmp via rsync over SSH.',
-    tplBranch: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/",
+    tplBranch: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/tmp/",
     tplPr: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/tmp/",
-    tpl: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/tmp/",
+    tpl: "rsync -e \"ssh -i {{SSH_KEY}} -t -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./.data/db.sql {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/tmp/",
     params: [], envSelectPr: true
   },
   {
     id: 32, title: 'Sync files to environment', tags: ['data'], group: 'data',
     desc: 'Upload local files directory to an environment via rsync.',
-    tplBranch: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
+    tplBranch: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
     tplPr: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
-    tpl: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
+    tpl: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" ./web/sites/default/files/ {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/",
     params: [], envSelectPr: true
   },
   {
     id: 33, title: 'Sync files from environment', tags: ['data'], group: 'data',
     desc: 'Download files directory from an environment via rsync.',
-    tplBranch: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
+    tplBranch: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
     tplPr: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{PR_PREFIX}}{{PR_NUM}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
-    tpl: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{DEPLOY_BRANCH}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
+    tpl: "rsync -avz -e \"ssh -i {{SSH_KEY}} -o 'IdentitiesOnly=yes' -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -p {{SSH_PORT}}\" {{PROJECT}}-{{SSH_ENV}}@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/ ./web/sites/default/files/",
     params: [], envSelectPr: true
   },
 
@@ -836,6 +840,98 @@ function updateBranchValidation(iconEl) {
   iconEl.title = valid ? 'Valid regex' : 'Invalid regex — check the "More" pattern';
 }
 
+function rotateLeft32(value, shift) {
+  return ((value << shift) | (value >>> (32 - shift))) | 0;
+}
+
+// Hand-rolled because 'crypto.subtle.digest' is async and resolveCommand()
+// renders synchronously.
+function sha1Hex(input) {
+  var bytes = [];
+  var encoded = unescape(encodeURIComponent(input));
+
+  for (var i = 0; i < encoded.length; i++) {
+    bytes.push(encoded.charCodeAt(i) & 0xff);
+  }
+
+  var bitLength = bytes.length * 8;
+  bytes.push(0x80);
+
+  while (bytes.length % 64 !== 56) {
+    bytes.push(0);
+  }
+
+  bytes.push(0, 0, 0, 0, (bitLength >>> 24) & 0xff, (bitLength >>> 16) & 0xff, (bitLength >>> 8) & 0xff, bitLength & 0xff);
+
+  var h = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+
+  for (var chunk = 0; chunk < bytes.length; chunk += 64) {
+    var w = [];
+
+    for (var t = 0; t < 16; t++) {
+      w[t] = (bytes[chunk + t * 4] << 24) | (bytes[chunk + t * 4 + 1] << 16) | (bytes[chunk + t * 4 + 2] << 8) | bytes[chunk + t * 4 + 3];
+    }
+
+    for (var t = 16; t < 80; t++) {
+      w[t] = rotateLeft32(w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16], 1);
+    }
+
+    var a = h[0], b = h[1], c = h[2], d = h[3], e = h[4];
+
+    for (var t = 0; t < 80; t++) {
+      var f, k;
+
+      if (t < 20) {
+        f = (b & c) | (~b & d);
+        k = 0x5a827999;
+      } else if (t < 40) {
+        f = b ^ c ^ d;
+        k = 0x6ed9eba1;
+      } else if (t < 60) {
+        f = (b & c) | (b & d) | (c & d);
+        k = 0x8f1bbcdc;
+      } else {
+        f = b ^ c ^ d;
+        k = 0xca62c1d6;
+      }
+
+      var temp = (rotateLeft32(a, 5) + f + e + k + w[t]) | 0;
+      e = d;
+      d = c;
+      c = rotateLeft32(b, 30);
+      b = a;
+      a = temp;
+    }
+
+    h[0] = (h[0] + a) | 0;
+    h[1] = (h[1] + b) | 0;
+    h[2] = (h[2] + c) | 0;
+    h[3] = (h[3] + d) | 0;
+    h[4] = (h[4] + e) | 0;
+  }
+
+  return h.map(function(word) { return (word >>> 0).toString(16).padStart(8, '0'); }).join('');
+}
+
+// Lagoon derives an environment name from a branch by lowercasing it and
+// replacing every character outside [a-z0-9-] with a hyphen.
+function safeEnvName(branch) {
+  return String(branch).toLowerCase().replace(/[^a-z0-9-]/g, '-');
+}
+
+// An SSH username caps the project and environment at 58 characters together,
+// so a longer environment keeps a SHA-1 fragment of itself as the tail. The
+// fragment is hex, so the result needs no further sanitising.
+function sshEnvName(project, branch) {
+  var env = safeEnvName(branch);
+  var overlength = 58 - project.length;
+
+  if (env.length <= overlength) {
+    return env;
+  }
+
+  return env.slice(0, Math.max(0, overlength - 5)) + '-' + sha1Hex(env).slice(0, 4);
+}
 function resolveCommand(cmd, useAlt) {
   const project = getEffective('project', '<project>');
   const sshKey = resolveSshKey(project);
@@ -885,6 +981,8 @@ function resolveCommand(cmd, useAlt) {
       if (envType === 'dev') deployBranch = devBranch;
       if (envType === 'custom') deployBranch = (envState._customBranch && envState._customBranch.trim()) ? envState._customBranch.trim() : 'feature/my-feature';
       out = out.split('{{DEPLOY_BRANCH}}').join(deployBranch);
+      out = out.split('{{DEPLOY_ENV}}').join(safeEnvName(deployBranch));
+      out = out.split('{{SSH_ENV}}').join(sshEnvName(project, deployBranch));
     }
     if (envType === 'pr') {
       var prNum = (envState._prNum && envState._prNum.trim()) ? envState._prNum.trim() : '42';

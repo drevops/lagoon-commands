@@ -375,7 +375,80 @@ test.describe('SSH environment selector', () => {
     const directCode = await sshCard.locator('.cmd-code-alt').textContent();
     expect(directCode).toContain('pull-10@ssh.lagoon');
   });
-});
+
+  test('sanitises slashes in a custom branch into hyphens', async ({ page }) => {
+
+    await page.locator('#s-project').fill('acme');
+    await page.locator('.tag-filter-btn[data-tag="ssh"]').click();
+    const sshCard = page.locator('.cmd-group[data-group="ssh"] .cmd-card').first();
+    await sshCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await sshCard.locator('.env-custom-input:not([disabled])').fill('feature/login');
+    const lagoonCode = await sshCard.locator('.cmd-code').first().textContent();
+    expect(lagoonCode).toContain('lagoon ssh -p acme -e feature-login');
+    const directCode = await sshCard.locator('.cmd-code-alt').textContent();
+    expect(directCode).toContain('acme-feature-login@ssh.lagoon.amazeeio.cloud');
+    expect(directCode).not.toContain('/login@');
+  });
+
+  test('lowercases and sanitises every unsafe character in a branch', async ({ page }) => {
+
+    await page.locator('#s-project').fill('proj');
+    await page.locator('.tag-filter-btn[data-tag="ssh"]').click();
+    const sshCard = page.locator('.cmd-group[data-group="ssh"] .cmd-card').first();
+    await sshCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await sshCard.locator('.env-custom-input:not([disabled])').fill('Feature/ABC_123.x');
+    const directCode = await sshCard.locator('.cmd-code-alt').textContent();
+    expect(directCode).toContain('proj-feature-abc-123-x@ssh.lagoon.amazeeio.cloud');
+  });
+
+  test('truncates an over-long environment in the SSH username but not in the -e flag', async ({ page }) => {
+
+    await page.locator('#s-project').fill('acme');
+    await page.locator('.tag-filter-btn[data-tag="ssh"]').click();
+    const sshCard = page.locator('.cmd-group[data-group="ssh"] .cmd-card').first();
+    await sshCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await sshCard.locator('.env-custom-input:not([disabled])').fill('feature/very-long-branch-name-that-exceeds-the-ssh-username-limit');
+    const lagoonCode = await sshCard.locator('.cmd-code').first().textContent();
+    expect(lagoonCode).toContain('lagoon ssh -p acme -e feature-very-long-branch-name-that-exceeds-the-ssh-username-limit');
+    const directCode = await sshCard.locator('.cmd-code-alt').textContent();
+    expect(directCode).toContain('acme-feature-very-long-branch-name-that-exceeds-the-ss-ac2b@ssh.lagoon.amazeeio.cloud');
+  });
+
+  test('keeps an environment inside the 58 character budget untruncated', async ({ page }) => {
+
+    await page.locator('#s-project').fill('acme');
+    await page.locator('.tag-filter-btn[data-tag="ssh"]').click();
+    const sshCard = page.locator('.cmd-group[data-group="ssh"] .cmd-card').first();
+    await sshCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await sshCard.locator('.env-custom-input:not([disabled])').fill('feature/exactly-fifty-four-characters-long-branch-name');
+    const directCode = await sshCard.locator('.cmd-code-alt').textContent();
+    expect(directCode).toContain('acme-feature-exactly-fifty-four-characters-long-branch-name@ssh.lagoon.amazeeio.cloud');
+  });
+  test('sanitises the branch in rsync SSH usernames', async ({ page }) => {
+
+    await page.locator('#s-project').fill('proj');
+    await page.locator('.tag-filter-btn[data-tag="data"]').click();
+    const dataCard = page.locator('.cmd-group[data-group="data"] .cmd-card').first();
+    await dataCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await dataCard.locator('.env-custom-input:not([disabled])').fill('feature/my-feature');
+    const code = await dataCard.locator('.cmd-code').first().textContent();
+    expect(code).toContain('proj-feature-my-feature@ssh.lagoon.amazeeio.cloud');
+  });
+
+  test('keeps the raw branch for deploy but sanitises it for redeploy', async ({ page }) => {
+
+    await page.locator('#s-project').fill('proj');
+    await page.locator('.tag-filter-btn[data-tag="deploy"]').click();
+    const deployCards = page.locator('.cmd-group[data-group="deploy"] .cmd-card');
+    const deployBranchCard = deployCards.nth(0);
+    await deployBranchCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await deployBranchCard.locator('.env-custom-input:not([disabled])').fill('release/1.0');
+    expect(await deployBranchCard.locator('.cmd-code').first().textContent()).toContain('lagoon deploy branch -p proj -b "release/1.0"');
+    const redeployCard = deployCards.nth(1);
+    await redeployCard.locator('.env-btn', { hasText: 'Custom' }).click();
+    await redeployCard.locator('.env-custom-input:not([disabled])').fill('release/1.0');
+    expect(await redeployCard.locator('.cmd-code').first().textContent()).toContain('lagoon deploy latest -p proj -e "release-1-0"');
+  });});
 
 // ---------------------------------------------------------------------------
 // Setup commands inline controls.
